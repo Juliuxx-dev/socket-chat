@@ -20,8 +20,16 @@ class Users {
     return this.persons;
   }
 
-  getPersonsByRoom(room) {
-    let persons = this.persons.filter(person => person.room === room);
+  getPersonsByRoom(room, filter) {
+    let persons = this.persons.filter(person => {
+      if (filter) {
+        let regExp = new RegExp(filter, "gi");
+
+        return person.room === room && person.name.match(regExp);
+      } else {
+        return person.room === room
+      }
+    });
 
     return persons;
   }

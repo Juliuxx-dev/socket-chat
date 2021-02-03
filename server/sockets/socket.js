@@ -18,17 +18,18 @@ io.on('connection', (client) => {
 
     users.addPerson(client.id, user.name, user.room);
 
-    // client.broadcast.to(user.room).emit('createMessage', createMessage('ADMIN', `${user.name} has entered the room.`));
+    client.broadcast.to(user.room).emit('createMessage', createMessage('ADMIN', `${user.name} has entered the room.`));
     client.broadcast.to(user.room).emit('currentUsers', users.getPersonsByRoom(user.room));
 
     callback(users.getPersonsByRoom(user.room));
   });
 
-  client.on('createMessage', (user) => {
+  client.on('createMessage', (user, callback) => {
     let person = users.getPerson(client.id);
     let message = createMessage(person.name, user.message);
 
     client.broadcast.to(person.room).emit('createMessage', message);
+    callback(message);
   });
 
   client.on('disconnect', () => {
@@ -42,5 +43,9 @@ io.on('connection', (client) => {
     let person = users.getPerson(client.id);
 
     client.broadcast.to(data.to).emit('privateMessage', createMessage(person.name, data.message))
+  });
+
+  client.on('searchUser', (data, callback) => {
+    callback(users.getPersonsByRoom(data.room, data.filter));
   });
 });
